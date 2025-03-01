@@ -1,2 +1,3 @@
-# PersonalizedIMGenerator
+# Ultra-Persona
+
 Personalized Image Generator
