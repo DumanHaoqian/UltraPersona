@@ -14,6 +14,7 @@ Generate personalized images with multiple artistic stylings in PolyU (Hong Kong
 - [Parameters](#parameters)
 - [Examples](#examples)
 - [Project Structure](#project-structure)
+- [Model Using](#model_using)
 - [Author](#author)
 
 ## Features
@@ -112,6 +113,41 @@ psa = Persona(
 ├── Result_imgs/              # Generated output storage
 └── persona.py                # Main class
 ```
+## Model Using
+1. DreamShaper XL
+
+    Feature: Cyber Punk & Realistic Portrait
+
+    Description: Generates highly detailed and realistic portraits with a cyberpunk aesthetic.
+
+    Example Use: Cyberpunk 2077 style transformations.
+
+DreamShaper Example
+2. Animagine XL 4.0
+
+    Feature: Animation
+
+    Description: Specializes in creating animated-style portraits with vibrant colors and dynamic compositions.
+
+    Example Use: JoJo Style and Abstract Animation transformations.
+
+Animagine Example
+3. ProtoVision XL
+
+    Feature: 3D
+
+    Description: Produces professional 3D cartoon portraits with a Pixar-like art style.
+
+    Example Use: Professional 3D style transformations.
+
+ProtoVision Example
+4. IP-Adaptor-FaceID
+
+    Feature: Face ID Embedding
+
+    Description: Generates various style images conditioned on a face with only text prompts.
+
+    Example Use: High-resolution face generation for initial step.
 
 ## Notes
 - 🚦 Hardware Requirements: NVIDIA GPU recommended for optimal performance
