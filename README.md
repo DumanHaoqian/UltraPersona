@@ -14,7 +14,6 @@ Generate personalized images with multiple artistic stylings in PolyU (Hong Kong
 - [Parameters](#parameters)
 - [Examples](#examples)
 - [Project Structure](#project-structure)
-- [License](#license)
 - [Author](#author)
 
 ## Features
