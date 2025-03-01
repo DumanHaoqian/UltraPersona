@@ -119,8 +119,6 @@ psa = Persona(
 - 💾 Storage: Update `storage_mapping` paths in Persona class for your environment
 - 🖼️ Input Images: Use high-quality face images (600x600+ pixels recommended)
 
-## License
-[MIT License](LICENSE)
 
 ## Author
 **DU Haoqian**  
