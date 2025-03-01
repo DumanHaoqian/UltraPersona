@@ -3,7 +3,7 @@
 
 # PolySmart Persona - Personalized Image Generator
 
-![Header](header.png)
+![Header](test_step3_image.jpg)
 
 Generate personalized images with multiple artistic stylings in PolyU (Hong Kong Polytechnic University) backgrounds.
 
