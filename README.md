@@ -1,6 +1,6 @@
 # Ultra-Persona
 
-```markdown
+
 # PolySmart Persona - Personalized Image Generator
 
 ![Header](header.png)
@@ -124,4 +124,4 @@ psa = Persona(
 **DU Haoqian**  
 PolyU COMP Department  
 📅 Last Updated: 2025/2/28
-```
+
