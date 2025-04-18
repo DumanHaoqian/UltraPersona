@@ -119,7 +119,7 @@ psa = Persona(
 
 
 ## Author
-**DU Haoqian**  
+**Duman**  
 PolyU COMP Department  
 📅 Last Updated: 2025/2/28
 
