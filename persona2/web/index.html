@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PolyU 纪念照</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f5f2ec;
+    --ink: #1c1b19;
+    --muted: #6b6760;
+    --line: #d9d3c8;
+    --red: #a6192e;
+    --red-dark: #7f1222;
+    --card: #fffdf9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 15px/1.6 "Noto Sans SC", system-ui, sans-serif;
+  }
+  header {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+    padding: 20px 32px; border-bottom: 1px solid var(--line);
+  }
+  header h1 { margin: 0; font: 700 22px/1.2 "Noto Serif SC", serif; letter-spacing: .02em; }
+  header h1 span { color: var(--red); }
+  header p { margin: 0; color: var(--muted); font-size: 13px; }
+  main {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: 40px; padding: 28px 32px 48px; max-width: 1400px; margin: 0 auto;
+  }
+  section { margin-bottom: 32px; }
+  h2 {
+    display: flex; gap: 12px; align-items: baseline; margin: 0 0 12px;
+    font: 500 17px/1.3 "Noto Serif SC", serif;
+  }
+  .hint { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
+
+  .drop {
+    display: flex; gap: 16px; align-items: center; padding: 14px;
+    border: 1px dashed #b9b1a3; background: var(--card); cursor: pointer;
+  }
+  .drop:hover { border-color: var(--red); }
+  .drop img { width: 96px; height: 96px; object-fit: cover; display: none; }
+  .drop .label { font-size: 14px; }
+  .drop input { display: none; }
+  .found { margin-top: 10px; font-size: 14px; }
+  .found strong { color: var(--red); }
+  .warn { color: #8a5a00; font-size: 13px; margin: 4px 0 0; }
+
+  .grid { display: grid; gap: 10px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .opt {
+    position: relative; padding: 0; border: 1px solid var(--line); background: var(--card);
+    text-align: left; cursor: pointer; font: inherit; color: inherit;
+  }
+  .opt img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+  .opt .name { display: block; padding: 6px 8px; font-size: 13px; line-height: 1.35; }
+  .opt .swatch {
+    display: flex; align-items: center; justify-content: center; min-height: 72px;
+    background: #ebe6dc; color: var(--muted); font: 500 13px "Noto Serif SC", serif; padding: 8px; text-align: center;
+  }
+  .opt[aria-pressed="true"] { border-color: var(--red); box-shadow: inset 0 0 0 2px var(--red); }
+  .opt[aria-pressed="true"] .name, .opt[aria-pressed="true"] .swatch { color: var(--red); }
+  .opt:disabled { opacity: .38; cursor: not-allowed; }
+  .opt .cap { position: absolute; top: 6px; right: 6px; background: var(--ink); color: #fff; font-size: 11px; padding: 1px 6px; }
+
+  .go {
+    width: 100%; padding: 14px; border: 0; background: var(--red); color: #fff;
+    font: 500 16px "Noto Sans SC", sans-serif; letter-spacing: .1em; cursor: pointer;
+  }
+  .go:hover:not(:disabled) { background: var(--red-dark); }
+  .go:disabled { background: #c9c2b6; cursor: not-allowed; }
+
+  .stage {
+    position: sticky; top: 20px; align-self: start;
+    border: 1px solid var(--line); background: var(--card); min-height: 420px;
+    display: flex; flex-direction: column;
+  }
+  .stage .frame { flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .stage .frame img { max-width: 100%; max-height: 72vh; display: none; }
+  .stage .empty { color: var(--muted); font-size: 14px; text-align: center; }
+  .stage footer {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    border-top: 1px solid var(--line); padding: 10px 16px; font-size: 13px; color: var(--muted);
+  }
+  .stage footer a { color: var(--red); text-decoration: none; display: none; }
+  .bar { height: 2px; background: var(--line); overflow: hidden; display: none; }
+  .bar i { display: block; height: 100%; width: 30%; background: var(--red); animation: slide 1.4s linear infinite; }
+  @keyframes slide { from { transform: translateX(-100%); } to { transform: translateX(340%); } }
+
+  @media (max-width: 900px) {
+    header { padding: 16px; flex-direction: column; gap: 4px; }
+    main { grid-template-columns: 1fr; padding: 16px; gap: 24px; }
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .stage { position: static; min-height: 280px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>PolyU <span>纪念照</span></h1>
+  <p>上传一张照片，选一个校园地点和一种画风。</p>
+</header>
+
+<main>
+  <div>
+    <section>
+      <h2>先选一张照片</h2>
+      <p class="hint">正脸清楚、光线充足的照片效果最好。可以是一个人，也可以是最多五个人的合照。</p>
+      <label class="drop">
+        <img id="preview" alt="">
+        <span class="label" id="dropLabel">点击选择照片（JPG / PNG）</span>
+        <input type="file" id="file" accept="image/jpeg,image/png">
+      </label>
+      <div class="found" id="found"></div>
+    </section>
+
+    <section>
+      <h2>在哪里拍</h2>
+      <div class="grid" id="bgs"></div>
+    </section>
+
+    <section>
+      <h2>画成什么样</h2>
+      <div class="grid" id="styles"></div>
+    </section>
+
+    <button class="go" id="go" disabled>生成</button>
+  </div>
+
+  <div class="stage">
+    <div class="bar" id="bar"><i></i></div>
+    <div class="frame">
+      <img id="result" alt="生成结果">
+      <div class="empty" id="empty">结果会显示在这里。<br>每张大约需要两到三分钟。</div>
+    </div>
+    <footer>
+      <span id="status">等待上传照片</span>
+      <a id="download" download="polyu-souvenir.jpg">下载</a>
+    </footer>
+  </div>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const state = { file: null, analyzed: false, people: 0, allowed: [], bg: null, style: null, busy: false };
+
+function button(item, kind, body) {
+  const b = document.createElement("button");
+  b.className = "opt"; b.type = "button"; b.dataset.id = item.id; b.setAttribute("aria-pressed", "false");
+  b.innerHTML = body;
+  b.addEventListener("click", () => {
+    state[kind] = item.id;
+    for (const o of b.parentElement.children) o.setAttribute("aria-pressed", o === b ? "true" : "false");
+    refresh();
+  });
+  return b;
+}
+
+async function loadOptions() {
+  const r = await fetch("/api/options").then((r) => r.json());
+  for (const bg of r.backgrounds) {
+    $("bgs").appendChild(button(bg, "bg",
+      `<img src="${bg.url}" alt="" loading="lazy"><span class="cap">最多 ${bg.max_people} 人</span><span class="name">${bg.name}</span>`));
+  }
+  for (const st of r.styles) {
+    const body = st.sample
+      ? `<img src="${st.sample}" alt="" loading="lazy"><span class="name">${st.name}</span>`
+      : `<span class="swatch">${st.name}</span>`;
+    $("styles").appendChild(button(st, "style", body));
+  }
+  state.style = 0;
+  $("styles").firstChild.setAttribute("aria-pressed", "true");
+}
+
+function refresh() {
+  for (const b of $("bgs").children) {
+    const ok = !state.analyzed || state.allowed.includes(Number(b.dataset.id));
+    b.disabled = !ok;
+    if (!ok && state.bg === Number(b.dataset.id)) { state.bg = null; b.setAttribute("aria-pressed", "false"); }
+  }
+  $("go").disabled = state.busy || !state.file || !state.people || state.bg === null || state.style === null;
+}
+
+$("file").addEventListener("change", async (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  state.file = f; state.people = 0; state.analyzed = false; refresh();
+  $("preview").src = URL.createObjectURL(f); $("preview").style.display = "block";
+  $("dropLabel").textContent = f.name;
+  $("found").textContent = "正在识别照片里的人……";
+  const fd = new FormData(); fd.append("photo", f);
+  try {
+    const r = await fetch("/api/analyze", { method: "POST", body: fd }).then((r) => r.json());
+    state.people = r.status === "reject" ? 0 : r.people;
+    state.allowed = r.allowed_backgrounds || [];
+    state.analyzed = true;
+    $("status").textContent = state.people ? "选好地点和画风后，点“生成”。" : "这张照片不能用，请换一张。";
+    $("found").innerHTML = r.people ? `照片里有 <strong>${r.people}</strong> 个人。` : "";
+    for (const m of r.messages) $("found").insertAdjacentHTML("beforeend", `<p class="warn">${m}</p>`);
+  } catch { $("found").textContent = "识别失败，请重新选择照片。"; }
+  refresh();
+});
+
+$("go").addEventListener("click", async () => {
+  state.busy = true; refresh();
+  $("bar").style.display = "block"; $("status").textContent = "生成中……";
+  if (window.matchMedia("(max-width: 900px)").matches) document.querySelector(".stage").scrollIntoView({ behavior: "smooth" });
+  $("download").style.display = "none";
+  const fd = new FormData();
+  fd.append("photo", state.file); fd.append("background", state.bg); fd.append("style", state.style);
+  try {
+    const res = await fetch("/api/generate", { method: "POST", body: fd });
+    const r = await res.json();
+    if (!r.ok) throw new Error((r.messages || [r.detail || "生成失败"]).join(" "));
+    const url = "data:image/jpeg;base64," + r.image;
+    $("result").src = url; $("result").style.display = "block"; $("empty").style.display = "none";
+    $("download").href = url; $("download").style.display = "inline";
+    $("status").textContent = r.messages.length ? r.messages.join(" ") : "完成";
+  } catch (err) {
+    $("status").textContent = err.message;
+  } finally {
+    state.busy = false; $("bar").style.display = "none"; refresh();
+  }
+});
+
+loadOptions();
+</script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+# UltraPersona v2 configuration.
+# Paths are relative to the repo root unless absolute.
+
+model:
+  path: /mnt/d/hf_models/Qwen-Image-Edit-2511
+  quantized_dir: /mnt/d/hf_models/quantized   # quantize.py writes <dir>/<preset>/
+  lightning_lora: /mnt/d/hf_models/Qwen-Image-Edit-2511-Lightning
+  default_preset: nf4_mix    # nf4_mix | fp8 | nf4 (see persona2/qwen_edit.py and experiments/QUANT_NOTES.md)
+  restore_background: false  # true = paste the generated people back onto the original background photo
+                             # (exact landmarks, weaker light match). Decision pending.
+  default_mode: twostep      # onestep | twostep; set from experiments/one_vs_two results
+  steps: 40
+  true_cfg_scale: 4.0
+  vram_cap_gb: 30            # hard cap passed to torch.cuda.set_per_process_memory_fraction
+
+quality:
+  # LFW calibration (experiments/results/face_calibration.json): same person mean 0.64 (p10 0.51),
+  # different people mean 0.01 (p99 0.15), best same/different split 0.21. 0.35 sits between them.
+  face_sim_min: 0.35
+  max_retries: 2
+  candidates: 1              # >1 = generate several seeds and keep the best face match
+
+analysis:
+  min_face_px: 64            # shorter side of the face box in the input photo
+  min_sharpness: 40          # variance of Laplacian on the face crop
+  max_people: 5
+
+backgrounds:
+  1:
+    name: Jockey Club Innovation Tower
+    name_zh: 赛马会创新楼
+    file: backgrounds/Y.jpg
+    scene: the plaza in front of the white curved Jockey Club Innovation Tower, next to the "POLYU DESIGN" sign
+    stand: on the paved plaza in the lower middle of the picture, in front of the "POLYU DESIGN" sign
+    max_people: 5
+  2:
+    name: P504 Student Lab
+    name_zh: P504 学生实验室
+    file: backgrounds/lab.jpeg
+    scene: a university lab with a red robot arm serving coffee and a PolyU logo above the coffee machine
+    stand: behind the white counter on the right side, so the robot arm and the PolyU logo stay visible
+    max_people: 3
+  3:
+    name: PolyU Great Lawn
+    name_zh: 理大大草坪
+    file: backgrounds/grass.jpeg
+    scene: the green lawn in front of red-brick university buildings and a wide staircase under a blue sky
+    stand: on the green lawn in the foreground, centred in front of the staircase
+    max_people: 5
+  4:
+    name: A Garden
+    name_zh: 空中花园
+    file: backgrounds/a_garden.jpeg
+    scene: a rooftop garden with a stone path, red-brick towers and trees
+    stand: on the stone path in the middle of the garden
+    max_people: 5
+  5:
+    name: Clock Square
+    name_zh: 钟楼广场
+    file: backgrounds/clock.jpeg
+    scene: a campus square with a red steel clock tower next to a red-brick building
+    stand: on the paved square to the right of the red clock tower, without covering the clock
+    max_people: 5
+  6:
+    name: Library Gate
+    name_zh: 图书馆正门
+    file: backgrounds/lib.jpeg
+    scene: the entrance of the PolyU University Library with the red PolyU logo above the doors
+    stand: on the steps in front of the library entrance, below the "UNIVERSITY LIBRARY" sign
+    max_people: 5
+  7:
+    name: Library G Floor
+    name_zh: 图书馆 G 层
+    file: backgrounds/lib_g.jpeg
+    scene: a library reading area with white bookshelves and orange and grey benches
+    stand: on the carpet in front of the benches
+    max_people: 4
+  8:
+    name: PolyU Garden Restaurant
+    name_zh: 理大花园餐厅
+    file: backgrounds/newcan.jpeg
+    scene: an outdoor restaurant courtyard with red and green tables in front of a red-brick building
+    stand: on the paved walkway in the middle of the courtyard
+    max_people: 4
+
+# engine: qwen = Qwen-Image-Edit text instruction; opencv = local filter, no model.
+styles:
+  0:
+    name: Photo (no style)
+    name_zh: 写实照片
+    engine: none
+    prompt: ""
+  1:
+    name: Van Gogh Starry Night
+    name_zh: 梵高《星空》
+    engine: qwen
+    prompt: a Van Gogh oil painting in the style of The Starry Night, with swirling brush strokes, thick impasto and a deep blue and yellow palette
+  2:
+    name: One Last Kiss
+    name_zh: One Last Kiss
+    engine: opencv
+    prompt: ""
+  3:
+    name: Professional 3D
+    name_zh: 3D 动画
+    engine: qwen
+    prompt: a high-quality 3D animated film still with soft studio lighting and smooth stylised characters
+  4:
+    name: JoJo Style
+    name_zh: JoJo 漫画
+    engine: qwen
+    prompt: a Japanese manga illustration with bold ink outlines, dramatic poses, strong shading and vivid colours, in the style of 1990s action manga
+  5:
+    name: Cyberpunk 2077
+    name_zh: 赛博朋克
+    engine: qwen
+    prompt: a cyberpunk night scene with neon lights, holographic signs, wet reflective ground and futuristic clothing
+  6:
+    name: Medieval Style
+    name_zh: 中世纪
+    engine: qwen
+    prompt: a medieval scene where the buildings look like stone castles and the people wear medieval clothing, painted like a Renaissance oil painting
+  7:
+    name: Abstract Animation
+    name_zh: 扁平动画
+    engine: qwen
+    prompt: a flat 2D animation frame with clean lines and simple flat colours
+  8:
+    name: Miro Style
+    name_zh: 米罗
+    engine: qwen
+    prompt: a Joan Miro painting with playful abstract shapes, black lines and primary colours
+  9:
+    name: Modigliani
+    name_zh: 莫迪利亚尼
+    engine: qwen
+    prompt: a Modigliani painting with elongated faces and necks, almond-shaped eyes and warm muted colours

@@ -1,0 +1,26 @@
+# Verified on RTX 5090 (sm_120), driver 591.86, WSL2 Ubuntu, Python 3.11 (2026-11-18).
+# Install torch from the CUDA 12.8 index FIRST and pin it. A plain PyPI torch (e.g. 2.15 built for CUDA 13.2)
+# is newer than the driver supports and segfaults on the first CUDA call.
+#   uv pip install "torch==2.11.0+cu128" "torchvision==0.26.0+cu128" --index-url https://download.pytorch.org/whl/cu128
+#   uv pip install -r persona2/requirements.txt
+diffusers @ git+https://github.com/huggingface/diffusers@d9586a3dc62cce5091bdb7cff981d725f4a6dfe5
+transformers==5.23.0
+accelerate==1.16.0
+torchao==0.18.0
+bitsandbytes==0.50.2
+peft==0.21.3
+safetensors==0.8.0
+insightface==2.1
+onnxruntime==1.32.0
+opencv-python-headless==5.0.0.93
+numpy==2.4.6
+scipy==1.17.1
+scikit-learn==1.9.1
+pillow==13.0.0
+pyyaml==6.0.3
+open-clip-torch==4.2.2
+fastapi==0.163.1
+uvicorn==0.54.0
+python-multipart==0.0.34
+# screenshots of the page only
+playwright==1.65.2

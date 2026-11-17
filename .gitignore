@@ -1,0 +1,12 @@
+# v2: downloaded test photos and experiment images stay local (recreate with tools/fetch_commons_testcases.py)
+testcases/raw/
+testcases/people_*/
+experiments/results/**/images/
+experiments/results/bench_quant/
+__pycache__/
+*.pyc
+testcases/selected/
+experiments/results/ablate_quant/*.png
+experiments/results/page/
+experiments/*.log
+experiments/results/*.log
