@@ -61,10 +61,12 @@ def main():
     ap.add_argument("--variants", nargs="+", default=["base", "lock", "guide", "lock_guide", "repair"])
     ap.add_argument("--bg", type=int, default=3)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--lightning", default=None, help="L8 / L4: fast weights; base is then generated, not v1")
     ap.add_argument("--repair-thr", type=float, default=None, help="repair faces below this ArcFace score")
     args = ap.parse_args()
 
     cfg = load_config()
+    cfg["model"]["lightning"] = args.lightning
     c = cfg.setdefault("control", {})
     set_vram_cap(cfg["model"]["vram_cap_gb"])
     out = os.path.join(ROOT, "experiments", "results", "control", args.run)
@@ -92,10 +94,22 @@ def main():
                 style = cfg["styles"][st]
                 if style["engine"] == "qwen":
                     p = prompts.onestep_prompt(an.people, an.framing, bg, style)
-                    base_img = Image.open(os.path.join(V1, f"{base}__st{st}__onestep.png")).convert("RGB")
+                    v1_path = os.path.join(V1, f"{base}__st{st}__onestep.png")
                 else:
                     p = prompts.compose_prompt(an.people, an.framing, bg)
-                    base_img = Image.open(os.path.join(V1, base + "__composite.png")).convert("RGB")
+                    v1_path = os.path.join(V1, base + "__composite.png")
+                base_seconds = None
+                if args.lightning:   # free edit with the fast weights, same prompt and seed as v1
+                    bpath = os.path.join(img_dir, f"{base}__st{st}__base.png")
+                    if os.path.exists(bpath):
+                        base_img = Image.open(bpath).convert("RGB")
+                    else:
+                        with peak_vram() as bpv:
+                            base_img = per._edit([photo, bg_img], p, args.seed)
+                        base_seconds = bpv
+                        base_img.save(bpath)
+                else:
+                    base_img = Image.open(v1_path).convert("RGB")
                 made = {"base": base_img}
                 plan = None
                 for spec in args.variants:
@@ -150,12 +164,12 @@ def main():
                         extra["bgm_styled"] = background_scores(img, per.styled_background(args.bg, st, args.seed), pm)
                     row = {"key": key, "bucket": bucket, "photo": fname, "people": an.people, "bg": args.bg,
                            "seed": args.seed, "style": st, "method": tag(spec), "face": m.as_dict(), "bgm": b,
-                           **({} if kind == "base" else pv), **extra}
+                           **(base_seconds or {} if kind == "base" else pv), **extra}
                     log.write(json.dumps(row) + "\n")
                     log.flush()
                     print(f"{key}  worst={m.worst:.3f} mean={m.mean:.3f} n={m.n_output}/{m.n_input} "
-                          f"ssim={b['ssim']:.3f} sift={b['sift_inliers']} t={pv['seconds']:.0f}s "
-                          f"vram={pv['peak_reserved_gb']:.1f}GB", flush=True)
+                          f"ssim={b['ssim']:.3f} sift={b['sift_inliers']} t={row.get('seconds', 0):.0f}s "
+                          f"vram={row.get('peak_reserved_gb', 0):.1f}GB", flush=True)
 
 
 if __name__ == "__main__":

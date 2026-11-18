@@ -46,7 +46,10 @@ class Persona:
         self.cfg = cfg or load_config()
         mc = self.cfg["model"]
         self.preset = preset or mc["default_preset"]
-        self.pipe = pipe or load_pipeline(mc["path"], self.preset, mc.get("quantized_dir"))
+        lt = mc.get("lightning")
+        self.fast = mc["lightning_models"][lt] if lt else None    # step-distilled weights, few steps, no CFG
+        self.pipe = pipe or load_pipeline(mc["path"], self.preset, mc.get("quantized_dir"),
+                                          transformer_path=self.fast["transformer"] if self.fast else None)
 
     # -- helpers ----------------------------------------------------------------------------
     def background(self, bg_id: int) -> tuple[dict, Image.Image]:
@@ -55,6 +58,9 @@ class Persona:
 
     def _edit(self, images, prompt, seed, lock=None, guide=None, steps=None):
         mc = self.cfg["model"]
+        if self.fast:   # distilled: fixed short schedule, no classifier-free guidance (one pass per step)
+            return edit(self.pipe, images, prompt, prompts.NEGATIVE, seed, self.fast["steps"], 1.0,
+                        lock=lock, guide=guide)
         return edit(self.pipe, images, prompt, prompts.NEGATIVE, seed, steps or mc["steps"], mc["true_cfg_scale"],
                     lock=lock, guide=guide)
 

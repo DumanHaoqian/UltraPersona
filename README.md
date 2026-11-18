@@ -12,10 +12,20 @@
    - 两步：先合成写实照片，再对合成结果做风格化。
    默认用一步（`config.yaml` 的 `default_mode`）；“3D 动画”风格单独设为两步（风格里的 `mode`）。依据见 `experiments/ONE_VS_TWO.md`。
 4. **人脸检查**（`face_metrics.py`）：用 InsightFace 的 ArcFace 把每张脸变成 512 维向量，计算输出和输入的余弦相似度。多人时用匈牙利算法一对一配对，报告人数是否一致、每个人的相似度、最差那个人的相似度和认错人的次数。不合格就换随机种子重试。
-5. **背景锁定**（`control.py`，默认开）：先不加控制生成一次，得到人的位置；再生成一次，人以外的区域每一步都锁到背景（艺术风格锁到先单独风格化的背景）。锁定后人数不对就改用第一次的结果。
+5. **背景锁定**（`control.py`，8 步下默认关）：先不加控制生成一次，得到人的位置；再生成一次，人以外的区域每一步都锁到背景。只对 40 步模型有帮助，见 `experiments/CONTROL.md` 和 `experiments/SPEED.md`。
 6. **人脸放大重绘**（默认只在写实照片风格）：分数低的脸裁出放大到 1024，涂掉旧脸后按原照片重画，贴回后更像本人才保留。
    身份梯度引导也在 `control.py` 里，默认关闭。三种方法的实验结论见 `experiments/CONTROL.md`。
 7. **One Last Kiss** 风格不用模型（`styles_cv.py`，已改成矩阵运算）。
+
+## 加速
+
+默认用 8 步 Lightning 权重（`model.lightning: L8`），单次编辑约 25 秒（40 步约 140 秒），人脸分数更高。合并权重：
+
+```bash
+python tools/merge_lora.py --base /mnt/d/hf_models/Qwen-Image-Edit-2511     --lora /mnt/d/hf_models/Qwen-Image-Edit-2511-Lightning/Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors     --out /mnt/d/hf_models/Qwen-Image-Edit-2511-L8
+```
+
+结论和数据见 `experiments/SPEED.md`。设 `model.lightning: null` 可回到 40 步。
 
 ## 量化配置
 

@@ -10,11 +10,15 @@ model:
                              # (exact landmarks, weaker light match). Decision pending.
   default_mode: onestep      # onestep | twostep; a style can override with its own "mode". See experiments/results/one_vs_two/v1/report.md
   steps: 40
+  lightning: L8              # null = full model (40 steps, CFG 4) | L8 | L4: Lightning weights merged by tools/merge_lora.py (experiments/SPEED.md)
+  lightning_models:
+    L8: {transformer: /mnt/d/hf_models/Qwen-Image-Edit-2511-L8/transformer, steps: 8}
+    L4: {transformer: /mnt/d/hf_models/Qwen-Image-Edit-2511-L4/transformer, steps: 4}
   true_cfg_scale: 4.0
   vram_cap_gb: 30            # hard cap passed to torch.cuda.set_per_process_memory_fraction
 
 control:                     # see persona2/control.py and experiments/CONTROL.md
-  lock: true                 # approach 1: background lock (one extra edit; falls back to the free edit if the people count is wrong)
+  lock: false                # approach 1: on helps the 40-step model only; with L8 the free edit already keeps the background (SPEED.md)
   lock_release_photo: 0.85   # fraction of steps locked, photo style (late release blends the edges)
   lock_release_style: 0.5    # art styles: lock the first half of the steps to the stylized background
   lock_inner_release: 0.2    # first 20% of steps: whole picture locked to (people from a free edit + background)

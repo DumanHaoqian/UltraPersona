@@ -18,6 +18,7 @@ quantize.py saves quantized weights to <quantized_dir>/<preset>/; load_pipeline(
 from __future__ import annotations
 
 import gc
+import math
 import os
 import time
 from contextlib import contextmanager
@@ -32,6 +33,13 @@ PRESETS = {
     "nf4_mix": ("nf4_mix", "nf4"),
     "nf4_all": ("nf4_all", "nf4"),
     "fp8_dq": ("fp8_dq", "nf4"),
+}
+# Scheduler for the Lightning (step-distilled) weights, from github.com/ModelTC/Qwen-Image-Lightning.
+LIGHTNING_SCHEDULER = {
+    "base_image_seq_len": 256, "base_shift": math.log(3), "invert_sigmas": False, "max_image_seq_len": 8192,
+    "max_shift": math.log(3), "num_train_timesteps": 1000, "shift": 1.0, "shift_terminal": None,
+    "stochastic_sampling": False, "time_shift_type": "exponential", "use_beta_sigmas": False,
+    "use_dynamic_shifting": True, "use_exponential_sigmas": False, "use_karras_sigmas": False,
 }
 TR_SKIP = ["img_in", "txt_in", "txt_norm", "time_text_embed", "norm_out", "proj_out"]
 TE_SKIP = ["lm_head", "visual.merger", "visual.patch_embed"]
@@ -73,7 +81,8 @@ def _tr_qconfig(mode: str):
     }[mode]()
 
 
-def load_transformer(model_path: str, mode: str, saved_dir: str | None = None):
+def load_transformer(model_path: str, mode: str, saved_dir: str | None = None, transformer_path: str | None = None):
+    """transformer_path: a folder with merged weights (tools/merge_lora.py) instead of <model_path>/transformer."""
     from diffusers import QwenImageTransformer2DModel
 
     if saved_dir and os.path.isdir(os.path.join(saved_dir, "transformer")):
@@ -82,9 +91,9 @@ def load_transformer(model_path: str, mode: str, saved_dir: str | None = None):
             use_safetensors=mode.startswith("nf4"), device_map="cuda")
     # device_map="cuda": each weight goes to the GPU and is quantized there, so the 41GB BF16
     # transformer never has to sit in system RAM (WSL has ~31GB).
+    src = dict(pretrained_model_name_or_path=transformer_path) if transformer_path else         dict(pretrained_model_name_or_path=model_path, subfolder="transformer")
     model = QwenImageTransformer2DModel.from_pretrained(
-        model_path, subfolder="transformer", quantization_config=_tr_qconfig(mode), torch_dtype=torch.bfloat16,
-        device_map="cuda")
+        **src, quantization_config=_tr_qconfig(mode), torch_dtype=torch.bfloat16, device_map="cuda")
     if mode == "nf4_mix":
         # The per-block modulation layers (img_mod / txt_mod, ~6.8B params) are kept out of NF4; store them
         # as FP8 weights instead (bf16 would cost ~13.6GB).
@@ -109,18 +118,23 @@ def load_text_encoder(model_path: str, mode: str, saved_dir: str | None = None):
 
 
 def load_pipeline(model_path: str, preset: str = "nf4", quantized_dir: str | None = None,
-                  lightning_lora: str | None = None, use_saved: bool = True):
-    from diffusers import QwenImageEditPlusPipeline
+                  lightning_lora: str | None = None, use_saved: bool = True, transformer_path: str | None = None):
+    """transformer_path: merged Lightning weights; the pipeline then uses the Lightning scheduler
+    (run it with few steps and true_cfg_scale 1, see persona2.pipeline.Persona)."""
+    from diffusers import FlowMatchEulerDiscreteScheduler, QwenImageEditPlusPipeline
 
     tr_mode, te_mode = PRESETS[preset]
-    saved = os.path.join(quantized_dir, preset) if (quantized_dir and use_saved) else None
+    tag = preset + ("_" + os.path.basename(os.path.dirname(transformer_path.rstrip("/"))) if transformer_path else "")
+    saved = os.path.join(quantized_dir, tag) if (quantized_dir and use_saved) else None
     t0 = time.time()
-    transformer = load_transformer(model_path, tr_mode, saved)
+    transformer = load_transformer(model_path, tr_mode, saved, transformer_path)
     text_encoder = load_text_encoder(model_path, te_mode, saved)
     pipe = QwenImageEditPlusPipeline.from_pretrained(
         model_path, transformer=transformer, text_encoder=text_encoder, torch_dtype=torch.bfloat16)
     if lightning_lora:
         pipe.load_lora_weights(lightning_lora)
+    if transformer_path or lightning_lora:
+        pipe.scheduler = FlowMatchEulerDiscreteScheduler.from_config(LIGHTNING_SCHEDULER)
     pipe.vae.to("cuda")  # transformer and text encoder were loaded straight onto the GPU
     pipe.set_progress_bar_config(disable=True)
     print(f"[qwen_edit] preset={preset} loaded in {time.time() - t0:.0f}s, "

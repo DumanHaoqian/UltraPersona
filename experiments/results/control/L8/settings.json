@@ -1,0 +1,53 @@
+{
+ "control": {
+  "lock": true,
+  "lock_release_photo": 0.85,
+  "lock_release_style": 0.5,
+  "lock_inner_release": 0.2,
+  "mask_dilate_px": 24,
+  "mask_feather_px": 6,
+  "id_guide": false,
+  "guide_scale": 0.02,
+  "guide_sigma": [
+   0.4,
+   0.85
+  ],
+  "guide_blur": 1.5,
+  "guide_aug": 4,
+  "lock_target_style": "styled",
+  "repair": true,
+  "repair_single": false,
+  "repair_art_styles": false,
+  "repair_lock": true,
+  "repair_guide": false,
+  "repair_lock_release": 0.8,
+  "repair_steps": 28,
+  "repair_region_scale": 3.0
+ },
+ "argv": {
+  "run": "L8",
+  "per_bucket": 1,
+  "buckets": [
+   "people_1",
+   "people_2",
+   "people_3",
+   "people_4",
+   "people_5"
+  ],
+  "styles": [
+   0,
+   1,
+   4,
+   5
+  ],
+  "variants": [
+   "base",
+   "lock:r=0.5,t=styled,ri=0.2",
+   "repair:g=0"
+  ],
+  "bg": 3,
+  "seed": 0,
+  "lightning": "L8",
+  "repair_thr": null
+ }
+}
