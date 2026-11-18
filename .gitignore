@@ -10,3 +10,8 @@ experiments/results/ablate_quant/*.png
 experiments/results/page/
 experiments/*.log
 experiments/results/*.log
+
+# end-to-end outputs and style thumbnails contain faces from the test photos
+experiments/results/e2e/
+experiments/results/one_vs_two/v1/report.err
+persona2/web/static/styles/*.jpg

@@ -10,7 +10,7 @@
 3. **生成**（`qwen_edit.py`）：图 1 是用户照片，图 2 是背景。支持两种方法：
    - 一步：一次编辑同时完成合成和风格化；
    - 两步：先合成写实照片，再对合成结果做风格化。
-   默认方法由 `config.yaml` 的 `default_mode` 决定，取值看 `experiments/one_vs_two` 的结果。
+   默认用一步（`config.yaml` 的 `default_mode`）；“3D 动画”风格单独设为两步（风格里的 `mode`）。依据见 `experiments/ONE_VS_TWO.md`。
 4. **人脸检查**（`face_metrics.py`）：用 InsightFace 的 ArcFace 把每张脸变成 512 维向量，计算输出和输入的余弦相似度。多人时用匈牙利算法一对一配对，报告人数是否一致、每个人的相似度、最差那个人的相似度和认错人的次数。不合格就换随机种子重试；多人时再对不合格的人做单人脸修复。
 5. **One Last Kiss** 风格不用模型（`styles_cv.py`，已改成矩阵运算）。
 

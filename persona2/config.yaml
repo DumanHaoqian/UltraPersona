@@ -8,7 +8,7 @@ model:
   default_preset: nf4_mix    # nf4_mix | fp8 | nf4 (see persona2/qwen_edit.py and experiments/QUANT_NOTES.md)
   restore_background: false  # true = paste the generated people back onto the original background photo
                              # (exact landmarks, weaker light match). Decision pending.
-  default_mode: twostep      # onestep | twostep; set from experiments/one_vs_two results
+  default_mode: onestep      # onestep | twostep; a style can override with its own "mode". See experiments/results/one_vs_two/v1/report.md
   steps: 40
   true_cfg_scale: 4.0
   vram_cap_gb: 30            # hard cap passed to torch.cuda.set_per_process_memory_fraction
@@ -103,6 +103,7 @@ styles:
   3:
     name: Professional 3D
     name_zh: 3D 动画
+    mode: twostep   # one-step lost faces for this style in v1 (worst-person 0.07 vs 0.17)
     engine: qwen
     prompt: a high-quality 3D animated film still with soft studio lighting and smooth stylised characters
   4:

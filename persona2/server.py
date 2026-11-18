@@ -97,7 +97,7 @@ def api_generate(photo: UploadFile = File(...), background: int = Form(...), sty
     img = _read(photo)
     p = persona()
     with _lock:
-        res = p.generate(img, background, style, mode=CFG["model"].get("default_mode", "twostep"), seed=seed)
+        res = p.generate(img, background, style, mode=CFG["styles"][style].get("mode", CFG["model"].get("default_mode", "onestep")), seed=seed)
     if res.image is None:
         return JSONResponse({"ok": False, "messages": res.warnings}, status_code=422)
     return {"ok": True, "image": _b64(res.image), "messages": res.warnings,
