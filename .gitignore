@@ -15,3 +15,7 @@ experiments/results/*.log
 experiments/results/e2e/
 experiments/results/one_vs_two/v1/report.err
 persona2/web/static/styles/*.jpg
+persona2/cache/
+experiments/results/guide_sanity/*.png
+experiments/results/control/*/report.err
+experiments/results/control/*/score_style.log

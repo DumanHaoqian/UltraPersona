@@ -143,11 +143,15 @@ def peak_vram():
 
 
 def edit(pipe, images, prompt: str, negative_prompt: str = " ", seed: int = 0, steps: int = 40,
-         true_cfg_scale: float = 4.0):
-    """images: list of PIL images. The output takes the aspect ratio of the last image."""
+         true_cfg_scale: float = 4.0, lock=None, guide=None):
+    """images: list of PIL images. The output takes the aspect ratio of the last image.
+    lock / guide: optional persona2.control.Lock / Guide (background lock, identity guidance)."""
+    from .control import controls
+
     gen = torch.Generator(device="cpu").manual_seed(seed)
-    out = pipe(image=images, prompt=prompt, negative_prompt=negative_prompt, true_cfg_scale=true_cfg_scale,
-               guidance_scale=1.0, num_inference_steps=steps, generator=gen, num_images_per_prompt=1)
+    with controls(pipe, images[-1], steps, lock, guide):
+        out = pipe(image=images, prompt=prompt, negative_prompt=negative_prompt, true_cfg_scale=true_cfg_scale,
+                   guidance_scale=1.0, num_inference_steps=steps, generator=gen, num_images_per_prompt=1)
     return out.images[0]
 
 

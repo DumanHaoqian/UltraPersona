@@ -1,0 +1,42 @@
+{
+ "guide_scale": 0.08,
+ "guide_sigma": [
+  0.15,
+  0.8
+ ],
+ "id_guide": false,
+ "lock": false,
+ "lock_release_photo": 0.85,
+ "lock_release_style": 0.4,
+ "mask_dilate_px": 24,
+ "mask_feather_px": 6,
+ "repair": true,
+ "repair_guide": true,
+ "repair_lock": true,
+ "repair_lock_release": 0.8,
+ "repair_region_scale": 2.2,
+ "repair_single": false,
+ "repair_steps": 28,
+ "argv": {
+  "run": "probe",
+  "per_bucket": 1,
+  "buckets": [
+   "people_3"
+  ],
+  "styles": [
+   1
+  ],
+  "variants": [
+   "base",
+   "lock",
+   "guide",
+   "repair"
+  ],
+  "bg": 3,
+  "seed": 0,
+  "guide_scale": null,
+  "release_style": null,
+  "release_photo": null,
+  "repair_thr": null
+ }
+}

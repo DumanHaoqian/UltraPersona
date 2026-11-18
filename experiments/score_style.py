@@ -18,9 +18,10 @@ from persona2.pipeline import ROOT, load_config
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", default="v1")
+    ap.add_argument("--dir", default=None, help="results folder with metrics.jsonl and images/ (overrides --run)")
     args = ap.parse_args()
     cfg = load_config()
-    d = os.path.join(ROOT, "experiments", "results", "one_vs_two", args.run)
+    d = args.dir or os.path.join(ROOT, "experiments", "results", "one_vs_two", args.run)
     rows = [json.loads(l) for l in open(os.path.join(d, "metrics.jsonl"))]
     dev = "cuda" if torch.cuda.is_available() else "cpu"
     model, _, pre = open_clip.create_model_and_transforms("ViT-L-14", pretrained="openai", device=dev)

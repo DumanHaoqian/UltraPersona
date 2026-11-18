@@ -13,6 +13,28 @@ model:
   true_cfg_scale: 4.0
   vram_cap_gb: 30            # hard cap passed to torch.cuda.set_per_process_memory_fraction
 
+control:                     # see persona2/control.py and experiments/CONTROL.md
+  lock: true                 # approach 1: background lock (one extra edit; falls back to the free edit if the people count is wrong)
+  lock_release_photo: 0.85   # fraction of steps locked, photo style (late release blends the edges)
+  lock_release_style: 0.5    # art styles: lock the first half of the steps to the stylized background
+  lock_inner_release: 0.2    # first 20% of steps: whole picture locked to (people from a free edit + background)
+  mask_dilate_px: 24         # free band around the people (pixels at output size)
+  mask_feather_px: 6
+  id_guide: false            # approach 5: off, it damages faces it does not need to fix (CONTROL.md)
+  guide_scale: 0.02           # with clip 2; larger steps damage faces (experiments/guide_sanity.py)
+  guide_sigma: [0.4, 0.85]   # middle noise levels only; later steps clean up what guidance adds
+  guide_blur: 1.5            # blur of the gradient in latent cells, against adversarial patterns
+  guide_aug: 4               # jittered / flipped face crops per face
+  lock_target_style: styled  # art styles lock to the background redrawn in the style (cached), not the photo
+  repair: true               # approach 3: redraw low-scoring faces at a larger scale
+  repair_single: false       # also for one-person photos
+  repair_art_styles: false   # art styles: score rises but some repaired faces look worse (CONTROL.md)
+  repair_lock: true
+  repair_guide: false        # guidance on large faces damages them (control_probe4)
+  repair_lock_release: 0.8
+  repair_steps: 28
+  repair_region_scale: 3.0  # face ~340px in the 1024 region, so the guided decode stays under max_latent
+
 quality:
   # LFW calibration (experiments/results/face_calibration.json): same person mean 0.64 (p10 0.51),
   # different people mean 0.01 (p99 0.15), best same/different split 0.21. 0.35 sits between them.

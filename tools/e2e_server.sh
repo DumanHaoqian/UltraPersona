@@ -9,7 +9,8 @@ PID=$!
 for i in $(seq 1 60); do curl -s -o /dev/null http://127.0.0.1:7863/api/options && break; sleep 1; done
 for i in $(seq 1 120); do curl -s http://127.0.0.1:7863/api/options | grep -q '"model_ready":true' && break; sleep 10; done
 echo "model ready after ~$((i*10)) s"
-for case in "people_2 4 1" "people_1 1 3"; do
+CASES=("$@"); [ ${#CASES[@]} -eq 0 ] && CASES=("people_2 4 1" "people_1 1 3")   # "bucket background style"
+for case in "${CASES[@]}"; do
   set -- $case
   f=$(ls testcases/selected/$1 | head -1)
   /usr/bin/time -f "%e s" curl -s -F "photo=@testcases/selected/$1/$f" -F background=$2 -F style=$3 http://127.0.0.1:7863/api/generate > $OUT/$1_bg$2_st$3.json

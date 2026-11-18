@@ -1,0 +1,48 @@
+{
+ "control": {
+  "lock": false,
+  "lock_release_photo": 0.85,
+  "lock_release_style": 0.4,
+  "mask_dilate_px": 24,
+  "mask_feather_px": 6,
+  "id_guide": false,
+  "guide_scale": 0.05,
+  "guide_sigma": [
+   0.4,
+   0.85
+  ],
+  "guide_blur": 1.5,
+  "guide_aug": 4,
+  "lock_target_style": "styled",
+  "repair": true,
+  "repair_single": false,
+  "repair_lock": true,
+  "repair_guide": true,
+  "repair_lock_release": 0.8,
+  "repair_steps": 28,
+  "repair_region_scale": 3.0
+ },
+ "argv": {
+  "run": "probe3",
+  "per_bucket": 1,
+  "buckets": [
+   "people_3"
+  ],
+  "styles": [
+   1
+  ],
+  "variants": [
+   "base",
+   "lock:r=0.3,t=styled",
+   "lock:r=0.5,t=styled",
+   "guide:g=0.05",
+   "guide:g=0.1",
+   "repair:g=0",
+   "repair:g=1",
+   "lock_guide:r=0.5,t=styled,g=0.05"
+  ],
+  "bg": 3,
+  "seed": 0,
+  "repair_thr": null
+ }
+}

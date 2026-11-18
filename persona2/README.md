@@ -11,8 +11,11 @@
    - 一步：一次编辑同时完成合成和风格化；
    - 两步：先合成写实照片，再对合成结果做风格化。
    默认用一步（`config.yaml` 的 `default_mode`）；“3D 动画”风格单独设为两步（风格里的 `mode`）。依据见 `experiments/ONE_VS_TWO.md`。
-4. **人脸检查**（`face_metrics.py`）：用 InsightFace 的 ArcFace 把每张脸变成 512 维向量，计算输出和输入的余弦相似度。多人时用匈牙利算法一对一配对，报告人数是否一致、每个人的相似度、最差那个人的相似度和认错人的次数。不合格就换随机种子重试；多人时再对不合格的人做单人脸修复。
-5. **One Last Kiss** 风格不用模型（`styles_cv.py`，已改成矩阵运算）。
+4. **人脸检查**（`face_metrics.py`）：用 InsightFace 的 ArcFace 把每张脸变成 512 维向量，计算输出和输入的余弦相似度。多人时用匈牙利算法一对一配对，报告人数是否一致、每个人的相似度、最差那个人的相似度和认错人的次数。不合格就换随机种子重试。
+5. **背景锁定**（`control.py`，默认开）：先不加控制生成一次，得到人的位置；再生成一次，人以外的区域每一步都锁到背景（艺术风格锁到先单独风格化的背景）。锁定后人数不对就改用第一次的结果。
+6. **人脸放大重绘**（默认只在写实照片风格）：分数低的脸裁出放大到 1024，涂掉旧脸后按原照片重画，贴回后更像本人才保留。
+   身份梯度引导也在 `control.py` 里，默认关闭。三种方法的实验结论见 `experiments/CONTROL.md`。
+7. **One Last Kiss** 风格不用模型（`styles_cv.py`，已改成矩阵运算）。
 
 ## 量化配置
 
@@ -44,6 +47,9 @@ python -m experiments.calibrate_faces                  # 用 LFW 标定相似度
 python -m experiments.one_vs_two --run v1              # 一步 vs 两步
 python -m experiments.score_style --run v1             # 风格强度
 python -m experiments.report --run v1
+python -m experiments.control_ablation --run c1 --variants base "lock:r=0.5,t=styled,ri=0.2" "guide:g=0.04" "repair:g=0"
+python -m experiments.score_style --dir experiments/results/control/c1
+python -m experiments.control_report --run c1
 ```
 
 ## 环境
