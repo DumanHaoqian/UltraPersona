@@ -1,4 +1,4 @@
-"""Non-model styles. Same look as ImageStyling/Onelastkiss, but vectorised (the old per-pixel loops
+"""Non-model styles. Same look as the v1 One Last Kiss style, but vectorised (the old per-pixel loops
 took tens of seconds on a 1700x1276 image)."""
 import cv2
 import numpy as np
